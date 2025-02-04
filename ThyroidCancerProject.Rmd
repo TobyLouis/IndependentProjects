@@ -1,0 +1,84 @@
+---
+title: "Thyroid Cancer Risk Detection"
+author: "Toby Trotta"
+date: "Updated: February 3, 2025"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
+library(tidyverse)
+library(ggplot2)
+library(psych)
+```
+
+# Foreword
+
+The following dataset was retrieved from Kaggle.com (https://www.kaggle.com/datasets/ankushpanday1/thyroid-cancer-risk-prediction-dataset) on February 3, 2025. In an attempt to remain keen on my machine learning and statistical analysis skills, I plan to continue this series of miscellaneous projects. In this project, we aim to create a machine learning model to predict the diagnosis of a type of thyroid cancer. According to the author of this dataset, the 212,691 records were scraped from the web using an unknown programming language and method, citing 12 unlisted websites as its source. The goal of these independent projects is to showcase my skills in data analysis and machine learning. Enjoy!
+
+Toby
+
+```{r}
+df <- read_csv('thyroid_cancer_risk_data.csv',
+               col_types = cols(
+  Patient_ID = col_double(),
+  Age = col_double(),
+  Gender = col_factor(ordered = T),
+  Country = col_factor(ordered = T),
+  Ethnicity = col_factor(ordered = T),
+  Family_History = col_factor(ordered = T),
+  Radiation_Exposure = col_factor(ordered = T),
+  Iodine_Deficiency = col_factor(ordered = T),
+  Smoking = col_factor(ordered = T),
+  Obesity = col_factor(ordered = T),
+  Diabetes = col_factor(ordered = T),
+  TSH_Level = col_double(),
+  T3_Level = col_double(),
+  T4_Level = col_double(),
+  Nodule_Size = col_double(),
+  Thyroid_Cancer_Risk = col_factor(ordered = T),
+  Diagnosis = col_factor(ordered = T)
+  )
+)
+```
+
+# Introduction to Dataset
+
+As mentioned, this dataset was retrieved from Kaggle.com. It contains 212,691 records of simulated real-world thyroid cancer risk factors:
+
+   * Gender
+   * Ethnicity
+   * Family History
+   * Radiation Exposure
+   * Iodine Deficiency
+   * Smoking
+   * Obesity
+   * Diabetes
+   * TSH, T3, and T4 Levels
+   * and Nodule Size
+   
+Other information included is the patient's Age, Country, Thyroid Cancer Risk, and, of course, the Diagnosis. We will use the next section to investigate the demographic makeup of this dataset.
+
+# Demographics:
+```{r}
+df %>% group_by(Country) %>% 
+  summarize(Count = n()) %>% kableExtra::kable()
+```
+
+```{r}
+df %>%
+  group_by(Gender, Diagnosis) %>%
+  summarize(Count = n(), `Average Age` = mean(Age)) %>% kableExtra::kable()
+```
+
+```{r}
+df %>% group_by(Gender) %>% ggplot(aes(x = Age, fill = Gender)) +
+  geom_histogram(bins = 30) +
+  facet_wrap(facets = df$Gender) +
+  xlim(20, 90) +
+  ggthemes::theme_few() +
+  labs(x = "Age",
+       y = "Count",
+       title = "Age Distribution by Gender")
+```
+
