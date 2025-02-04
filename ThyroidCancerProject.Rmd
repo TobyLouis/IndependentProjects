@@ -82,3 +82,18 @@ df %>% group_by(Gender) %>% ggplot(aes(x = Age, fill = Gender)) +
        title = "Age Distribution by Gender")
 ```
 
+# Correlations and Trends
+```{r}
+means <- aggregate(TSH_Level ~ Ethnicity, data = df, mean)
+means$TSH_Level <- round(means$TSH_Level, digits = 3)
+
+df %>%  ggplot(aes(x = TSH_Level, y = Ethnicity, fill = Ethnicity)) +
+  geom_boxplot() +
+  labs(x = "TSH Level",
+       y = "Ethnicity",
+       title = "Thyroid Stimulating Hormone (TSH) Level by Ethnicity & Diagnosis") +
+  ggthemes::theme_few() +
+  geom_text(data = means, aes(label = TSH_Level, y = Ethnicity), color = "black", hjust = -1) +
+  theme(legend.position = "none")
+```
+
