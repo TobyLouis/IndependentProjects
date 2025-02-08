@@ -1,15 +1,22 @@
 ---
 title: "Thyroid Cancer Risk Detection"
 author: "Toby Trotta"
-date: "Updated: February 3, 2025"
+date: "Updated: February 8, 2025"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, warning = F, message = F)
+knitr::opts_chunk$set(echo = T, warning = F, message = F)
 library(tidyverse)
 library(ggplot2)
 library(psych)
+library(viridis)
+
+styling <- theme(title = element_text(color = "black", family = "serif", face = "bold", size = 14),
+                 plot.subtitle = element_text(color = "black", family = "serif", size = 10, face = "plain"),
+                 axis.title = element_text(color = "black", family = "serif", face = "plain"),
+                 axis.text = element_text(color = "black", family = "serif", face = "plain", size = 12),
+                 legend.position = "none")
 ```
 
 # Foreword
@@ -24,7 +31,7 @@ df <- read_csv('thyroid_cancer_risk_data.csv',
   Patient_ID = col_double(),
   Age = col_double(),
   Gender = col_factor(ordered = T),
-  Country = col_factor(ordered = T),
+  Country = col_factor(),
   Ethnicity = col_factor(ordered = T),
   Family_History = col_factor(ordered = T),
   Radiation_Exposure = col_factor(ordered = T),
@@ -40,6 +47,11 @@ df <- read_csv('thyroid_cancer_risk_data.csv',
   Diagnosis = col_factor(ordered = T)
   )
 )
+
+df$Country <- factor(df$Country, levels = c("India", "China", "Nigeria",
+                                            "Brazil", "Russia", "Japan",
+                                            "South Korea", "UK",
+                                            "USA", "Germany"))
 ```
 
 # Introduction to Dataset
@@ -61,8 +73,19 @@ Other information included is the patient's Age, Country, Thyroid Cancer Risk, a
 
 # Demographics:
 ```{r}
-df %>% group_by(Country) %>% 
-  summarize(Count = n()) %>% kableExtra::kable()
+countries <- df %>% group_by(Country) %>% summarize(
+  Count = n()
+  )
+countries <- countries %>% arrange(-Count)
+
+ggplot(countries, aes(x = fct_reorder(Country, -Count), y = Count)) +
+  geom_bar(stat = "identity", fill = viridis(10)) +
+  labs(title = "Participants by Nationality",
+    x = "Country",
+    y = "Count") +
+  geom_text(data = countries, aes(label = Count), color = "black",
+           family = "serif", vjust = -0.5) +
+  ggthemes::theme_few() + styling
 ```
 
 ```{r}
@@ -93,7 +116,8 @@ df %>%  ggplot(aes(x = TSH_Level, y = Ethnicity, fill = Ethnicity)) +
        y = "Ethnicity",
        title = "Thyroid Stimulating Hormone (TSH) Level by Ethnicity & Diagnosis") +
   ggthemes::theme_few() +
-  geom_text(data = means, aes(label = TSH_Level, y = Ethnicity), color = "black", hjust = -1) +
-  theme(legend.position = "none")
+  #geom_text(data = paste0(rep("Mean:", 5), means), aes(label = TSH_Level, y = Ethnicity), color = "black",
+  #          family = "serif", hjust = -1) +
+  theme(legend.position = "none") + styling
 ```
 
